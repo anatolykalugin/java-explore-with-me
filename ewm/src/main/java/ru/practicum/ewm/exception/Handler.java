@@ -20,4 +20,9 @@ public class Handler {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleAlreadyExistsException(final AlreadyExistsException e) {
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }

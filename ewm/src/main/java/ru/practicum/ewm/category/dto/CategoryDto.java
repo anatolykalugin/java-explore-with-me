@@ -1,11 +1,9 @@
-package ru.practicum.ewm.user.dto;
+package ru.practicum.ewm.category.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -14,11 +12,8 @@ import javax.validation.constraints.Size;
 @EqualsAndHashCode
 @ToString
 @Builder
-public class UserDto {
+public class CategoryDto {
     Long id;
-    @Email
-    String email;
-    @Size(max = 20)
     @NotBlank
     String name;
 }

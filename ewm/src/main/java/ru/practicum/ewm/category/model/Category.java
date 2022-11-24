@@ -1,12 +1,10 @@
-package ru.practicum.ewm.user.model;
+package ru.practicum.ewm.category.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -14,18 +12,13 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(name = "categories")
 @Builder
-public class User {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     Long id;
-    @Email
-    @NotNull
-    @Column(name = "email", unique = true)
-    String email;
-    @Size(max = 20)
     @NotNull
     @Column(name = "name")
     String name;
