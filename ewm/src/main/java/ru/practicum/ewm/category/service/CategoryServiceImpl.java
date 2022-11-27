@@ -40,14 +40,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto update(CategoryDto categoryDto) {
         log.info("Запрос на обновление категории");
-        if (categoryRepository.findById(Math.toIntExact(categoryDto.getId())).isEmpty()) {
+        if (categoryRepository.findById(categoryDto.getId()).isEmpty()) {
             throw new NotFoundException("Отсутствует категория для обновления");
         }
         if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
             throw new AlreadyExistsException("Уже есть категория с таким именем");
         }
         log.info("Валидация пройдена - обновляем категорию");
-        Category category = categoryRepository.getReferenceById(Math.toIntExact(categoryDto.getId()));
+        Category category = categoryRepository.getReferenceById(categoryDto.getId());
         category.setName(category.getName());
         categoryRepository.save(category);
         return CategoryMapper.toDto(category);
@@ -57,20 +57,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         log.info("Запрос на удаление категории");
-        if (categoryRepository.findById(Math.toIntExact(id)).isEmpty()) {
+        if (categoryRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Отсутствует категория для удаления");
         }
         if (categoryRepository.hasEventsByCategoryId(id)) {
             throw new AlreadyExistsException("Созданы ивенты с данной категорией, удаление невозможно");
         }
-        categoryRepository.deleteById(Math.toIntExact(id));
+        categoryRepository.deleteById(id);
     }
 
     @Override
     public CategoryDto getById(Long id) {
         log.info("Запрос на получение (и возможно последующие действия) категории");
-        if (categoryRepository.findById(Math.toIntExact(id)).isPresent()) {
-            return CategoryMapper.toDto(categoryRepository.getReferenceById(Math.toIntExact(id)));
+        if (categoryRepository.findById(id).isPresent()) {
+            return CategoryMapper.toDto(categoryRepository.getReferenceById(id));
         } else {
             throw new NotFoundException("Не найдена такая категория");
         }

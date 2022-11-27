@@ -22,6 +22,11 @@ public class Handler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleAlreadyExistsException(final AlreadyExistsException e) {
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleValidationException(final ValidationException e) {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 

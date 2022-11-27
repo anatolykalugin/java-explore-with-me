@@ -9,7 +9,7 @@ import ru.practicum.ewm.category.model.Category;
 import java.util.Optional;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Integer> {
+public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByName(String name);
 
     @Query(value = "select count (e.id) > 0 from events e where e.category_id = :id", nativeQuery = true)

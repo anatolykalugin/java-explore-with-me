@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long id) {
         log.info("Запрос на удаление юзера");
-        userRepository.delete(userRepository.findById(Math.toIntExact(id))
+        userRepository.delete(userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + id + " не найден.")));
     }
 
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(Long id) {
         log.info("Поиск юзера по айди");
-        return UserMapper.toDto(userRepository.findById(Math.toIntExact(id))
+        return UserMapper.toDto(userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + id + " не найден.")));
     }
 
