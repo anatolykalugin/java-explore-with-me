@@ -14,7 +14,7 @@ public interface EventService {
 
     EventDto createEvent(Long userId, EventCreationDto eventDto);
 
-    EventDto adminUpdate(Long eventId, EventDto eventDto);
+    EventDto adminUpdate(Long eventId, EventCreationDto eventDto);
 
     List<EventCutDto> getPublicEvents(String text, List<Long> categoriesIds, LocalDateTime neededStart,
                                       LocalDateTime neededEnd, Boolean available, Sort sort, Integer index,
