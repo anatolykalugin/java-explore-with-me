@@ -1,16 +1,18 @@
 package ru.practicum.ewm.event.service;
 
+import ru.practicum.ewm.event.dto.EventCreationDto;
 import ru.practicum.ewm.event.dto.EventCutDto;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
+import ru.practicum.ewm.request.dto.RequestDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
 
-    EventDto createEvent(Long userId, EventDto eventDto);
+    EventDto createEvent(Long userId, EventCreationDto eventDto);
 
     EventDto adminUpdate(Long eventId, EventDto eventDto);
 
@@ -35,5 +37,10 @@ public interface EventService {
 
     EventDto rejectEvent(Long eventId);
 
-    //TODO: add 3 private request-connected methods
+    List<RequestDto> getCurrentEventsUsersRequests(Long userId, Long eventId);
+
+    RequestDto confirmUsersRequest(Long userId, Long eventId, Long requestId);
+
+    RequestDto rejectUsersRequest(Long userId, Long eventId, Long requestId);
+
 }

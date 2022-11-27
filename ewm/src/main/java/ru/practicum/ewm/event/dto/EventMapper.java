@@ -4,27 +4,29 @@ import org.springframework.stereotype.Component;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.user.model.User;
+
+import java.time.LocalDateTime;
 
 @Component
 public class EventMapper {
-    public static Event toClass(EventDto eventDto) {
+    public static Event toClass(EventCreationDto eventDto, Long userId) {
         return Event.builder()
                 .id(eventDto.getId())
                 .annotation(eventDto.getAnnotation())
                 .title(eventDto.getTitle())
                 .description(eventDto.getDescription())
-                .state(eventDto.getState())
-                .created(eventDto.getCreated())
-                .published(eventDto.getPublished())
+                .state(State.PENDING)
+                .created(LocalDateTime.now())
                 .startDate(eventDto.getStartDate())
                 .initiator(User.builder()
-                        .id(eventDto.getInitiator().getId())
+                        .id(userId)
                         .build())
                 .lat(eventDto.getLocation().getLat())
                 .lon(eventDto.getLocation().getLon())
                 .category(Category.builder()
-                        .id(eventDto.getCategory().getId())
+                        .id(eventDto.getCategory())
                         .build())
                 .paid(eventDto.getPaid())
                 .moderation(eventDto.getModeration())

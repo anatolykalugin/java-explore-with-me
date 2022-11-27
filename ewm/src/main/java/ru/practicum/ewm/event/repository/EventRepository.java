@@ -16,4 +16,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Event findByIdAndInitiatorId(Long id, Long initiatorId);
 
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
+
+    List<Event> getByIdIn(List<Long> ids);
 }
