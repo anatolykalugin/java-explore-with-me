@@ -19,4 +19,5 @@ public class EventCutDto {
     Long initiatorId;
     CategoryDto category;
     Boolean paid;
+    Integer views;
 }

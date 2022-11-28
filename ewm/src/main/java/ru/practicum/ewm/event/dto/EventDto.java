@@ -39,6 +39,7 @@ public class EventDto {
     Boolean paid;
     Boolean moderation;
     Integer participantLimit;
+    Integer views;
 
     @Getter
     @Setter

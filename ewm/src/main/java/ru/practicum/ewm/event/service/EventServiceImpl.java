@@ -18,6 +18,7 @@ import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.dto.RequestDto;
+import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.model.User;
@@ -25,6 +26,7 @@ import ru.practicum.ewm.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,40 +75,92 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
         if (available) {
             eventCutDtoList = eventCutDtoList.stream()
-                    .filter()
+                    .filter(eventCutDto -> participationValidation(retrieveEvent(eventCutDto.getId())))
+                    .collect(Collectors.toList());
         }
+        if (sort != null) {
+            switch (sort) {
+                case VIEWS:
+                    eventCutDtoList = eventCutDtoList.stream()
+                            .sorted(Comparator.comparingInt(EventCutDto::getViews))
+                            .collect(Collectors.toList());
+                    break;
+                case EVENT_DATE:
+                    eventCutDtoList = eventCutDtoList.stream()
+                            .sorted(Comparator.comparing(EventCutDto::getStartDate))
+                            .collect(Collectors.toList());
+                    break;
+            }
+        }
+        return eventCutDtoList.stream()
+                .skip(index)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
     public EventDto getFullPublicEvent(Long eventId) {
         log.info("Request for getting an event (Public functionality)");
-
+        retrieveEvent(eventId);
+        log.info("Validation passed, getting...");
+        Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED);
+        return EventMapper.toDto(event);
     }
 
     @Override
     public List<EventDto> getAuthorsEvents(Long userId, Integer index, Integer size) {
-        log.info("Request for an event creation");
-
+        log.info("Request for getting initiator's events");
+        Pageable pageable = PageRequest.of(index / size, size);
+        return eventRepository.findAllByInitiatorId(userId, pageable).stream()
+                .map(EventMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public EventDto updateOwnersEvent(Long userId, EventDto eventDto) {
-        log.info("Request for an event creation");
-
+    public EventDto updateOwnersEvent(Long userId, EventCreationDto eventDto) {
+        log.info("Request for updating an event by the initiator");
+        if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getStartDate())) {
+            throw new ValidationException("Start date too soon");
+        }
+        Event event = retrieveEvent(eventDto.getId());
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user"));
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ValidationException("The user doesn't have access to this");
+        }
+        if (event.getState().equals(State.REJECTED) || event.getState().equals(State.PUBLISHED)) {
+            throw new ValidationException("Can't update an event in this state");
+        }
+        if (event.getState().equals(State.CANCELED)) {
+            event.setState(State.PENDING);
+        }
+        return EventMapper.toDto(eventRepository.save(updateProcedure(event, eventDto)));
     }
 
     @Override
     public EventDto getAuthorsEventById(Long userId, Long eventId) {
-        log.info("Request for an event creation");
-
+        log.info("Request for getting an event's info by the initiator");
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId);
+        if (event != null) {
+            return EventMapper.toDto(event);
+        } else {
+            throw new NotFoundException("Wrong user's/event's ID");
+        }
     }
 
     @Transactional
     @Override
     public EventDto cancelAuthorsEvent(Long userId, Long eventId) {
-        log.info("Request for an event creation");
-
+        log.info("Request for an event cancellation");
+        Event event = retrieveEvent(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ValidationException("The user doesn't have access to this");
+        }
+        if (!event.getState().equals(State.PENDING)) {
+            throw new ValidationException("Can't cancel an event that is not pending");
+        }
+        event.setState(State.CANCELED);
+        return EventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
@@ -153,24 +207,50 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<RequestDto> getCurrentEventsUsersRequests(Long userId, Long eventId) {
-        log.info("Request for an event creation");
-
+        log.info("Request for getting event's requests");
+        Event event = retrieveEvent(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ValidationException("The user doesn't have access to this");
+        }
+        return requestRepository.findAllByEventId(eventId).stream()
+                .map(RequestMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public RequestDto confirmUsersRequest(Long userId, Long eventId, Long requestId) {
-        log.info("Request for an event creation");
+        log.info("Request for confirming an event's request");
         Event event = retrieveEvent(eventId);
         isUpdateValid(event, userId, requestId);
-
+        if (participationValidation(event)) {
+            throw new ValidationException("Participation limit reached");
+        }
+        log.info("Validation passed, confirming...");
+        Request request = requestRepository.getReferenceById(requestId);
+        request.setState(ru.practicum.ewm.request.model.State.CONFIRMED);
+        if (participationValidation(event)) {
+            event.getRequests().removeIf(event2 ->
+                    !event2.getState().equals(ru.practicum.ewm.request.model.State.CONFIRMED));
+        }
+        eventRepository.save(event);
+        return RequestMapper.toDto(request);
     }
 
     @Transactional
     @Override
     public RequestDto rejectUsersRequest(Long userId, Long eventId, Long requestId) {
-        log.info("Request for an event creation");
-
+        log.info("Request for rejecting an event's request");
+        Event event = retrieveEvent(eventId);
+        if (!userId.equals(event.getInitiator().getId())) {
+            throw new ValidationException("Wrong user can't approve/reject");
+        }
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Request not found"));
+        log.info("Validation passed, rejecting...");
+        request.setState(ru.practicum.ewm.request.model.State.REJECTED);
+        eventRepository.save(event);
+        return RequestMapper.toDto(request);
     }
 
     private Event retrieveEvent(Long id) {
@@ -226,6 +306,12 @@ public class EventServiceImpl implements EventService {
         if (!event.getModeration() || (event.getParticipantLimit() == 0)) {
             throw new ValidationException("No need to confirm the request");
         }
+    }
+
+    private boolean participationValidation(Event event) {
+        long confirmedParticipants = event.getRequests().stream()
+                .filter(event2 -> event2.getState().equals(ru.practicum.ewm.request.model.State.CONFIRMED)).count();
+        return confirmedParticipants >= event.getParticipantLimit();
     }
 
 }

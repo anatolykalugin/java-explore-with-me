@@ -24,7 +24,7 @@ public interface EventService {
 
     List<EventDto> getAuthorsEvents(Long userId, Integer index, Integer size);
 
-    EventDto updateOwnersEvent(Long userId, EventDto eventDto);
+    EventDto updateOwnersEvent(Long userId, EventCreationDto eventDto);
 
     EventDto getAuthorsEventById(Long userId, Long eventId);
 
