@@ -1,6 +1,5 @@
-package ru.practicum.ewm.dto;
+package ru.practicum.ewm.stclient;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,13 +7,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StatsClientDto {
+public class StatsClient {
     Long id;
     @NotBlank
     String app;
@@ -22,7 +19,13 @@ public class StatsClientDto {
     String uri;
     @NotBlank
     String ip;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull
     LocalDateTime timestamp;
+
+    public StatsClient(String app, String uri, String ip) {
+        this.app = app;
+        this.uri = uri;
+        this.ip = ip;
+    }
+
 }

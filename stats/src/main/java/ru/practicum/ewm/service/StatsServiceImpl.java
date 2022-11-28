@@ -21,12 +21,12 @@ public class StatsServiceImpl implements StatsService {
 
     @Transactional
     @Override
-    public StatsClientDto save(StatsClientDto statsClientDto) {
+    public StatsClientDto saveStats(StatsClientDto statsClientDto) {
         return StatsMapper.toDto(statsRepository.save(StatsMapper.toClass(statsClientDto)));
     }
 
     @Override
-    public List<Stats> get(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<Stats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (unique) {
             return statsRepository.getAllUniqueStats(start, end, uris, true);
         } else {

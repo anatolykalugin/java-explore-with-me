@@ -21,7 +21,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     public StatsClientDto save(@Valid @RequestBody StatsClientDto statsClientDto) {
-        return statsService.save(statsClientDto);
+        return statsService.saveStats(statsClientDto);
     }
 
     @GetMapping("/stats")
@@ -29,7 +29,7 @@ public class StatsController {
                            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                            @RequestParam(required = false) List<String> uris,
                            @RequestParam(defaultValue = "false") Boolean unique) {
-        return statsService.get(start, end, uris, unique);
+        return statsService.getStats(start, end, uris, unique);
     }
 
 }
