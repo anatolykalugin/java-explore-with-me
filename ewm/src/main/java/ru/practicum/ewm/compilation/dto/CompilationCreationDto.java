@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CompilationCreationDto {
     @NotBlank
     String title;

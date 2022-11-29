@@ -1,26 +1,28 @@
 package ru.practicum.ewm.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.category.dto.CategoryDto;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
-@Getter
-@Setter
 @Builder
-public class EventCutDto {
+@Getter
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString
+@Jacksonized
+public class EventUpdateDto {
     Long id;
     String annotation;
     String title;
+    String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    Long initiator;
-    CategoryDto category;
+    Long category;
     Boolean paid;
-    Integer views;
-    Integer confirmedRequests;
+    Integer participantLimit;
 }

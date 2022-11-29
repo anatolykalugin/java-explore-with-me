@@ -25,8 +25,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE ((:users) IS NULL OR e.initiator.id IN :users) " +
             "AND ((:states) IS NULL OR e.state IN :states) " +
             "AND ((:categories) IS NULL OR e.category.id IN :categories) " +
-            "AND (e.startDate >= :neededStart) " +
-            "AND ((:neededEnd) IS NULL OR e.startDate <= :neededEnd)")
+            "AND (e.eventDate >= :neededStart) " +
+            "AND cast(:neededEnd as date) IS NULL OR (e.eventDate <= :neededEnd)")
     List<Event> getAdminEvents(List<Long> users, List<State> states, List<Long> categories,
                                LocalDateTime neededStart, LocalDateTime neededEnd, Pageable pageable);
 
@@ -35,7 +35,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%')))" +
             "AND ((:categoriesIds) IS NULL OR e.category.id IN :categoriesIds) " +
             "AND e.paid = :isPaid " +
-            "AND e.startDate BETWEEN :neededStart AND :neededEnd")
+            "AND e.eventDate BETWEEN :neededStart AND :neededEnd")
     List<Event> getPublicEvents(String text, List<Long> categoriesIds, LocalDateTime neededStart,
                                 LocalDateTime neededEnd, Boolean isPaid, Pageable pageable);
 

@@ -7,10 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.event.dto.EventCreationDto;
-import ru.practicum.ewm.event.dto.EventCutDto;
-import ru.practicum.ewm.event.dto.EventDto;
-import ru.practicum.ewm.event.dto.EventMapper;
+import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
@@ -43,7 +40,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto createEvent(Long userId, EventCreationDto eventDto) {
         log.info("Request for an event creation");
-        if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getStartDate())) {
+        if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getEventDate())) {
             throw new ValidationException("Wrong event start date (too soon)");
         }
         return EventMapper.toDto(eventRepository.save(EventMapper.toClass(eventDto, userId)));
@@ -53,7 +50,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto adminUpdate(Long eventId, EventCreationDto eventDto) {
         log.info("Request for an event update (by Admin)");
-        Event event = updateProcedure(retrieveEvent(eventId), eventDto);
+        Event event = updateAdminProcedure(retrieveEvent(eventId), eventDto);
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -66,7 +63,7 @@ public class EventServiceImpl implements EventService {
         if (neededStart == null) {
             neededStart = LocalDateTime.now();
         }
-        if (text.isBlank()) {
+        if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
         List<EventCutDto> eventCutDtoList = eventRepository.getPublicEvents(text, categoriesIds, neededStart,
@@ -87,7 +84,7 @@ public class EventServiceImpl implements EventService {
                     break;
                 case EVENT_DATE:
                     eventCutDtoList = eventCutDtoList.stream()
-                            .sorted(Comparator.comparing(EventCutDto::getStartDate))
+                            .sorted(Comparator.comparing(EventCutDto::getEventDate))
                             .collect(Collectors.toList());
                     break;
             }
@@ -118,9 +115,9 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventDto updateOwnersEvent(Long userId, EventCreationDto eventDto) {
+    public EventDto updateOwnersEvent(Long userId, EventUpdateDto eventDto) {
         log.info("Request for updating an event by the initiator");
-        if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getStartDate())) {
+        if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getEventDate())) {
             throw new ValidationException("Start date too soon");
         }
         Event event = retrieveEvent(eventDto.getId());
@@ -131,10 +128,11 @@ public class EventServiceImpl implements EventService {
         if (event.getState().equals(State.REJECTED) || event.getState().equals(State.PUBLISHED)) {
             throw new ValidationException("Can't update an event in this state");
         }
+        log.info("Validation passed, updating...");
         if (event.getState().equals(State.CANCELED)) {
             event.setState(State.PENDING);
         }
-        return EventMapper.toDto(eventRepository.save(updateProcedure(event, eventDto)));
+        return EventMapper.toDto(eventRepository.save(updateUserProcedure(event, eventDto)));
     }
 
     @Override
@@ -182,7 +180,7 @@ public class EventServiceImpl implements EventService {
     public EventDto publishEvent(Long eventId) {
         log.info("Request for an event publishing");
         Event event = retrieveEvent(eventId);
-        if (LocalDateTime.now().plusHours(1).isAfter(event.getStartDate()) ||
+        if (LocalDateTime.now().plusHours(1).isAfter(event.getEventDate()) ||
                 !event.getState().equals(State.PENDING)) {
             throw new ValidationException("Validation of event publishing not passed");
         }
@@ -201,7 +199,7 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("This event is already published");
         }
         log.info("Validation successful, rejecting...");
-        event.setState(State.REJECTED);
+        event.setState(State.CANCELED);
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -257,7 +255,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findById(id).orElseThrow(() -> new NotFoundException("No such event found"));
     }
 
-    private Event updateProcedure(Event event, EventCreationDto newEvent) {
+    private Event updateAdminProcedure(Event event, EventCreationDto newEvent) {
         if (newEvent.getAnnotation() != null) {
             event.setAnnotation(newEvent.getAnnotation());
         }
@@ -267,8 +265,8 @@ public class EventServiceImpl implements EventService {
         if (newEvent.getDescription() != null) {
             event.setDescription(newEvent.getDescription());
         }
-        if (newEvent.getStartDate() != null) {
-            event.setStartDate(newEvent.getStartDate());
+        if (newEvent.getEventDate() != null) {
+            event.setEventDate(newEvent.getEventDate());
         }
         if (newEvent.getPaid() != null) {
             event.setPaid(newEvent.getPaid());
@@ -279,12 +277,37 @@ public class EventServiceImpl implements EventService {
         if (newEvent.getTitle() != null) {
             event.setTitle(newEvent.getTitle());
         }
-        if (newEvent.getModeration() != null) {
-            event.setModeration(newEvent.getModeration());
+        if (newEvent.getRequestModeration() != null) {
+            event.setModeration(newEvent.getRequestModeration());
         }
         if (newEvent.getLocation() != null) {
             event.setLat(newEvent.getLocation().getLat());
             event.setLon(newEvent.getLocation().getLon());
+        }
+        return event;
+    }
+
+    private Event updateUserProcedure(Event event, EventUpdateDto newEvent) {
+        if (newEvent.getAnnotation() != null) {
+            event.setAnnotation(newEvent.getAnnotation());
+        }
+        if (newEvent.getCategory() != null) {
+            event.setCategory(Category.builder().id(newEvent.getCategory()).build());
+        }
+        if (newEvent.getDescription() != null) {
+            event.setDescription(newEvent.getDescription());
+        }
+        if (newEvent.getEventDate() != null) {
+            event.setEventDate(newEvent.getEventDate());
+        }
+        if (newEvent.getPaid() != null) {
+            event.setPaid(newEvent.getPaid());
+        }
+        if (newEvent.getParticipantLimit() != null) {
+            event.setParticipantLimit(newEvent.getParticipantLimit());
+        }
+        if (newEvent.getTitle() != null) {
+            event.setTitle(newEvent.getTitle());
         }
         return event;
     }

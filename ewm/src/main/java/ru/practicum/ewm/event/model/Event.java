@@ -43,7 +43,7 @@ public class Event {
     @Column(name = "published")
     LocalDateTime published;
     @Column(name = "start_date")
-    LocalDateTime startDate;
+    LocalDateTime eventDate;
     @JoinColumn(name = "initiator")
     @ManyToOne
     User initiator;
@@ -65,4 +65,5 @@ public class Event {
             fetch = FetchType.LAZY)
     @JsonIgnore
     List<Request> requests = new ArrayList<>();
+    Integer confirmedRequests;
 }

@@ -26,7 +26,7 @@ public class EventAdminController {
                                          @RequestParam(required = false) List<Long> categories,
                                          @RequestParam(name = "rangeStart", required = false)
                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededStart,
-                                         @RequestParam(name = "rangeStart", required = false)
+                                         @RequestParam(name = "rangeEnd", required = false)
                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededEnd,
                                          @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer index,
                                          @Positive @RequestParam(defaultValue = "10") Integer size) {

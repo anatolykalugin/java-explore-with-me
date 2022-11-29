@@ -2,6 +2,7 @@ package ru.practicum.ewm.category.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 @ToString
 @Builder
+@Jacksonized
 public class CategoryDto {
     Long id;
     @NotBlank

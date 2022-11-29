@@ -24,11 +24,11 @@ public class EventDto {
     String description;
     State state;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime created;
+    LocalDateTime createdOn;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime published;
+    LocalDateTime publishedOn;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime startDate;
+    LocalDateTime eventDate;
     @NotNull
     UserCutDto initiator;
     @NotNull
@@ -37,9 +37,10 @@ public class EventDto {
     CategoryDto category;
     @NotNull
     Boolean paid;
-    Boolean moderation;
+    Boolean requestModeration;
     Integer participantLimit;
     Integer views;
+    Integer confirmedRequests;
 
     @Getter
     @Setter

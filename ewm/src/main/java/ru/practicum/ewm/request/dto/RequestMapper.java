@@ -13,7 +13,7 @@ public class RequestMapper {
                 .id(requestDto.getId())
                 .event(event)
                 .author(author)
-                .state(requestDto.getState())
+                .state(requestDto.getStatus())
                 .created(requestDto.getCreated())
                 .build();
     }
@@ -22,8 +22,8 @@ public class RequestMapper {
         return RequestDto.builder()
                 .id(request.getId())
                 .event(request.getEvent().getId())
-                .author(request.getAuthor().getId())
-                .state(request.getState())
+                .requester(request.getAuthor().getId())
+                .status(request.getState())
                 .created(request.getCreated())
                 .build();
     }

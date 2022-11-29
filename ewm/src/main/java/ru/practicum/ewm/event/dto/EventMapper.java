@@ -19,7 +19,7 @@ public class EventMapper {
                 .description(eventDto.getDescription())
                 .state(State.PENDING)
                 .created(LocalDateTime.now())
-                .startDate(eventDto.getStartDate())
+                .eventDate(eventDto.getEventDate())
                 .initiator(User.builder()
                         .id(userId)
                         .build())
@@ -29,7 +29,7 @@ public class EventMapper {
                         .id(eventDto.getCategory())
                         .build())
                 .paid(eventDto.getPaid())
-                .moderation(eventDto.getModeration())
+                .moderation(eventDto.getRequestModeration())
                 .participantLimit(eventDto.getParticipantLimit())
                 .build();
     }
@@ -41,9 +41,9 @@ public class EventMapper {
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .state(event.getState())
-                .created(event.getCreated())
-                .published(event.getPublished())
-                .startDate(event.getStartDate())
+                .createdOn(event.getCreated())
+                .publishedOn(event.getPublished())
+                .eventDate(event.getEventDate())
                 .initiator(EventDto.UserCutDto.builder()
                         .id(event.getInitiator().getId())
                         .name(event.getInitiator().getName())
@@ -57,8 +57,9 @@ public class EventMapper {
                         .name(event.getCategory().getName())
                         .build())
                 .paid(event.getPaid())
-                .moderation(event.getModeration())
+                .requestModeration(event.getModeration())
                 .participantLimit(event.getParticipantLimit())
+                .confirmedRequests(event.getConfirmedRequests())
                 .build();
     }
 
@@ -67,13 +68,14 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .title(event.getTitle())
-                .startDate(event.getStartDate())
-                .initiatorId(event.getInitiator().getId())
+                .eventDate(event.getEventDate())
+                .initiator(event.getInitiator().getId())
                 .category(CategoryDto.builder()
                         .id(event.getCategory().getId())
                         .name(event.getCategory().getName())
                         .build())
                 .paid(event.getPaid())
+                .confirmedRequests(event.getConfirmedRequests())
                 .build();
     }
 }

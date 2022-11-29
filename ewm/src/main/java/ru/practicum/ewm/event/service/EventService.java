@@ -3,6 +3,7 @@ package ru.practicum.ewm.event.service;
 import ru.practicum.ewm.event.dto.EventCreationDto;
 import ru.practicum.ewm.event.dto.EventCutDto;
 import ru.practicum.ewm.event.dto.EventDto;
+import ru.practicum.ewm.event.dto.EventUpdateDto;
 import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.request.dto.RequestDto;
@@ -24,7 +25,7 @@ public interface EventService {
 
     List<EventDto> getAuthorsEvents(Long userId, Integer index, Integer size);
 
-    EventDto updateOwnersEvent(Long userId, EventCreationDto eventDto);
+    EventDto updateOwnersEvent(Long userId, EventUpdateDto eventDto);
 
     EventDto getAuthorsEventById(Long userId, Long eventId);
 

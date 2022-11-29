@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.exception.AlreadyExistsException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.dto.UserMapper;
@@ -26,6 +27,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         log.info("Запрос на создание юзера");
+        if (userRepository.findByName(userDto.getName()).isPresent()) {
+            throw new AlreadyExistsException("User with this name already exists");
+        }
         User user = userRepository.save(UserMapper.toClass(userDto));
         return UserMapper.toDto(user);
     }

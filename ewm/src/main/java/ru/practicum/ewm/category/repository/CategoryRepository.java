@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByName(String name);
 
-    @Query(value = "select count (e.id) > 0 from events e where e.category_id = :id", nativeQuery = true)
+    @Query(value = "select count (e.id) > 0 from events e where e.category = :id", nativeQuery = true)
     boolean hasEventsByCategoryId(@Param("id") Long id);
 }

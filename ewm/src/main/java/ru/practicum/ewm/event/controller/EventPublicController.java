@@ -26,7 +26,7 @@ public class EventPublicController {
                                              List<Long> categoriesIds,
                                              @RequestParam(name = "rangeStart", required = false)
                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededStart,
-                                             @RequestParam(name = "rangeStart", required = false)
+                                             @RequestParam(name = "rangeEnd", required = false)
                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededEnd,
                                              @RequestParam(name = "paid", required = false) Boolean paid,
                                              @RequestParam(name = "onlyAvailable", defaultValue = "false")

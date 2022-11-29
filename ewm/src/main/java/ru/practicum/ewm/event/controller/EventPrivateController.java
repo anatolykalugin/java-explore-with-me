@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventCreationDto;
 import ru.practicum.ewm.event.dto.EventDto;
+import ru.practicum.ewm.event.dto.EventUpdateDto;
 import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.request.dto.RequestDto;
 
@@ -28,7 +29,7 @@ public class EventPrivateController {
     }
 
     @PatchMapping
-    public EventDto updateOwnersEvent(@PathVariable Long userId, @RequestBody EventCreationDto eventDto) {
+    public EventDto updateOwnersEvent(@PathVariable Long userId, @RequestBody EventUpdateDto eventDto) {
         return eventService.updateOwnersEvent(userId, eventDto);
     }
 

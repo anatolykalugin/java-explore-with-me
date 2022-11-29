@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
         log.info("Валидация пройдена - обновляем категорию");
         Category category = categoryRepository.getReferenceById(categoryDto.getId());
-        category.setName(category.getName());
+        category.setName(categoryDto.getName());
         categoryRepository.save(category);
         return CategoryMapper.toDto(category);
     }
