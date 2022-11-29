@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @ToString
 @Jacksonized
 public class EventUpdateDto {
-    Long id;
+    Long eventId;
     String annotation;
     String title;
     String description;

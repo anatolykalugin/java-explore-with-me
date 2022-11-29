@@ -120,7 +120,7 @@ public class EventServiceImpl implements EventService {
         if (LocalDateTime.now().plusHours(2).isAfter(eventDto.getEventDate())) {
             throw new ValidationException("Start date too soon");
         }
-        Event event = retrieveEvent(eventDto.getId());
+        Event event = retrieveEvent(eventDto.getEventId());
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user"));
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("The user doesn't have access to this");

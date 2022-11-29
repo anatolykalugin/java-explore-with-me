@@ -26,7 +26,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND ((:states) IS NULL OR e.state IN :states) " +
             "AND ((:categories) IS NULL OR e.category.id IN :categories) " +
             "AND (e.eventDate >= :neededStart) " +
-            "AND cast(:neededEnd as date) IS NULL OR (e.eventDate <= :neededEnd)")
+            "AND (DATE(:neededEnd) IS NULL) OR (e.eventDate <= :neededEnd)" +
+            "ORDER BY e.id DESC")
     List<Event> getAdminEvents(List<Long> users, List<State> states, List<Long> categories,
                                LocalDateTime neededStart, LocalDateTime neededEnd, Pageable pageable);
 
