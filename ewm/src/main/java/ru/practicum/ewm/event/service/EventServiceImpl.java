@@ -59,8 +59,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventCutDto> getPublicEvents(String text, List<Long> categoriesIds, LocalDateTime neededStart,
-                                             LocalDateTime neededEnd, Boolean available, Sort sort, Integer index,
-                                             Integer size) {
+                                             LocalDateTime neededEnd, Boolean isPaid, Boolean available,
+                                             Sort sort, Integer index, Integer size) {
         log.info("Request for getting public events");
         Pageable pageable = PageRequest.of(index / size, size);
         if (neededStart == null) {
@@ -70,7 +70,7 @@ public class EventServiceImpl implements EventService {
             return new ArrayList<>();
         }
         List<EventCutDto> eventCutDtoList = eventRepository.getPublicEvents(text, categoriesIds, neededStart,
-                        neededEnd, available, sort, pageable).stream()
+                        neededEnd, isPaid, pageable).stream()
                 .map(EventMapper::toCutDto)
                 .collect(Collectors.toList());
         if (available) {

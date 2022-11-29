@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
 
 import java.time.LocalDateTime;
@@ -38,6 +37,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND e.paid = :isPaid " +
             "AND e.startDate BETWEEN :neededStart AND :neededEnd")
     List<Event> getPublicEvents(String text, List<Long> categoriesIds, LocalDateTime neededStart,
-                                LocalDateTime neededEnd, Boolean available, Sort sort, Pageable pageable);
+                                LocalDateTime neededEnd, Boolean isPaid, Pageable pageable);
 
 }

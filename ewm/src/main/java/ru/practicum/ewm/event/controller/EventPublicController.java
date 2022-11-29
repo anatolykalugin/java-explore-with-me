@@ -28,13 +28,15 @@ public class EventPublicController {
                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededStart,
                                              @RequestParam(name = "rangeStart", required = false)
                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededEnd,
+                                             @RequestParam(name = "paid", required = false) Boolean paid,
                                              @RequestParam(name = "onlyAvailable", defaultValue = "false")
                                              Boolean available,
                                              @RequestParam(required = false) Sort sort,
                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                              Integer index,
                                              @Positive @RequestParam(defaultValue = "10") Integer size) {
-        return eventService.getPublicEvents(text, categoriesIds, neededStart, neededEnd, available, sort, index, size);
+        return eventService.getPublicEvents(text, categoriesIds, neededStart, neededEnd, paid,
+                available, sort, index, size);
     }
 
     @GetMapping("/{id}")
