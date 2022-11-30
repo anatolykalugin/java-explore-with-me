@@ -1,5 +1,6 @@
 package ru.practicum.ewm.stclient;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,6 +21,7 @@ public class StatsClient {
     @NotBlank
     String ip;
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime timestamp;
 
     public StatsClient(String app, String uri, String ip) {
