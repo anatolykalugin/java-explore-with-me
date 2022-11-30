@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -25,7 +24,6 @@ public class User {
     @NotNull
     @Column(name = "email", unique = true)
     String email;
-    @Size(max = 20)
     @NotNull
     @Column(name = "name")
     String name;
