@@ -25,8 +25,4 @@ public class StClient extends Client {
         post("/hit", new StatsClient(appName, uri, ip));
     }
 
-    public Object getStats(String uri) {
-        return get("/hit?uri=" + uri).getBody();
-    }
-
 }
