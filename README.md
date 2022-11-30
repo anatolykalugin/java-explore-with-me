@@ -1,2 +1,3 @@
 # ExploreWithMe
-Template repository for ExploreWithMe project.
+
+PR Link: https://github.com/anatolykalugin/java-explore-with-me/pull/2
