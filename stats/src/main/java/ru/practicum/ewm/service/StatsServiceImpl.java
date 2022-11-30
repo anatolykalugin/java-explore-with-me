@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.StatsClientDto;
 import ru.practicum.ewm.dto.StatsMapper;
 import ru.practicum.ewm.model.Stats;
+import ru.practicum.ewm.model.StatsClient;
 import ru.practicum.ewm.repository.StatsRepository;
 
 import java.time.LocalDateTime;
@@ -22,14 +23,21 @@ public class StatsServiceImpl implements StatsService {
     @Transactional
     @Override
     public StatsClientDto saveStats(StatsClientDto statsClientDto) {
-        return StatsMapper.toDto(statsRepository.save(StatsMapper.toClass(statsClientDto)));
+        StatsClient statsClient = StatsMapper.toClass(statsClientDto);
+        statsClient.setTimestamp(LocalDateTime.now());
+        log.info("MAPPED");
+        statsRepository.save(statsClient);
+        log.info("SAVED");
+        return StatsMapper.toDto(statsClient);
     }
 
     @Override
     public List<Stats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (unique) {
+            log.info("GETTING UNIQUE");
             return statsRepository.getAllUniqueStats(start, end, uris, true);
         } else {
+            log.info("GETTING NOT UNIQUE");
             return statsRepository.getAllStats(start, end, uris);
         }
     }

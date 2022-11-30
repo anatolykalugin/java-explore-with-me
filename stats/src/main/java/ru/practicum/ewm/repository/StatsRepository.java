@@ -13,11 +13,13 @@ import java.util.List;
 public interface StatsRepository extends JpaRepository<StatsClient, Long> {
 
     @Query("SELECT new ru.practicum.ewm.model.Stats(s.app, s.uri, COUNT (s.ip)) " +
-            "FROM StatsClient s WHERE s.timestamp > ?1 AND s.timestamp < ?2 GROUP BY s.app, s.uri")
+            "FROM StatsClient s WHERE s.timestamp > ?1 AND s.timestamp < ?2 " +
+            "AND s.uri IN ?3 GROUP BY s.app, s.uri")
     List<Stats> getAllStats(LocalDateTime start, LocalDateTime end, List<String> uris);
 
     @Query("SELECT new ru.practicum.ewm.model.Stats(s.app, s.uri, COUNT (DISTINCT s.ip)) FROM " +
-            "StatsClient s WHERE s.timestamp > ?1 AND s.timestamp < ?2 GROUP BY s.app, s.uri")
+            "StatsClient s WHERE s.timestamp > ?1 AND s.timestamp < ?2 " +
+            "AND s.uri IN ?3 GROUP BY s.app, s.uri")
     List<Stats> getAllUniqueStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 
 }

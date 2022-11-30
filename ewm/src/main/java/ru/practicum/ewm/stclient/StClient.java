@@ -1,28 +1,35 @@
 package ru.practicum.ewm.stclient;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Service
-public class StClient extends Client {
+@Slf4j
+@RequiredArgsConstructor
+public class StClient  {
+
+    private final WebClient webClient;
 
     @Value("${app-name}")
-    String appName;
-
-    @Autowired
-    public StClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl)).build());
-    }
+    private String appName;
 
     public void saveStats(HttpServletRequest request) {
         String ip = request.getRemoteAddr();
         String uri = request.getRequestURI();
-        post("/hit", new StatsClient(appName, uri, ip));
+        StatsClient statsClient = new StatsClient(appName, uri, ip);
+        log.info(" УРИ в реквесте: " + uri);
+        webClient.post()
+                .uri("/hit")
+                .body(BodyInserters.fromValue(statsClient))
+                .retrieve()
+                .bodyToMono(StatsClient.class)
+                .block();
     }
 
 }

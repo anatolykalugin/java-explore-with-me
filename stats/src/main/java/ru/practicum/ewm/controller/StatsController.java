@@ -1,6 +1,7 @@
 package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +16,14 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class StatsController {
 
     private final StatsService statsService;
 
     @PostMapping("/hit")
     public StatsClientDto save(@Valid @RequestBody StatsClientDto statsClientDto) {
+        log.info(" УРИ в контроллере Статов: " + statsClientDto.getUri());
         return statsService.saveStats(statsClientDto);
     }
 
