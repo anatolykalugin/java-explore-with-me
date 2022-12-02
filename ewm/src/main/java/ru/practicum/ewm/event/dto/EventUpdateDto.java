@@ -8,6 +8,8 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 
+import static ru.practicum.ewm.util.Constants.*;
+
 import java.time.LocalDateTime;
 
 @Builder
@@ -20,7 +22,7 @@ public class EventUpdateDto {
     String annotation;
     String title;
     String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATETIME_FORMAT)
     LocalDateTime eventDate;
     Long category;
     Boolean paid;

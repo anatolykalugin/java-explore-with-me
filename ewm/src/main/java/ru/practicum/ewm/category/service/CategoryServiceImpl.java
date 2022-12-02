@@ -11,6 +11,7 @@ import ru.practicum.ewm.category.dto.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.exception.AlreadyExistsException;
+import ru.practicum.ewm.exception.EventAlreadyExistsException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.List;
@@ -27,25 +28,18 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto create(CategoryDto categoryDto) {
         log.info("Запрос на создание категории");
-        if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
-            throw new AlreadyExistsException("Уже есть категория с таким именем");
-        } else {
-            log.info("Валидация пройдена - сохранение категории");
-            Category category = categoryRepository.save(CategoryMapper.toClass(categoryDto));
-            return CategoryMapper.toDto(category);
-        }
+        isNameValid(categoryDto.getName());
+        log.info("Валидация пройдена - сохранение категории");
+        Category category = categoryRepository.save(CategoryMapper.toClass(categoryDto));
+        return CategoryMapper.toDto(category);
     }
 
     @Transactional
     @Override
     public CategoryDto update(CategoryDto categoryDto) {
         log.info("Запрос на обновление категории");
-        if (categoryRepository.findById(categoryDto.getId()).isEmpty()) {
-            throw new NotFoundException("Отсутствует категория для обновления");
-        }
-        if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
-            throw new AlreadyExistsException("Уже есть категория с таким именем");
-        }
+        isIdValid(categoryDto.getId());
+        isNameValid(categoryDto.getName());
         log.info("Валидация пройдена - обновляем категорию");
         Category category = categoryRepository.getReferenceById(categoryDto.getId());
         category.setName(categoryDto.getName());
@@ -57,11 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         log.info("Запрос на удаление категории");
-        if (categoryRepository.findById(id).isEmpty()) {
-            throw new NotFoundException("Отсутствует категория для удаления");
-        }
+        isIdValid(id);
         if (categoryRepository.hasEventsByCategoryId(id)) {
-            throw new AlreadyExistsException("Созданы ивенты с данной категорией, удаление невозможно");
+            throw new EventAlreadyExistsException("Созданы ивенты с данной категорией, удаление невозможно");
         }
         categoryRepository.deleteById(id);
     }
@@ -69,11 +61,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getById(Long id) {
         log.info("Запрос на получение (и возможно последующие действия) категории");
-        if (categoryRepository.findById(id).isPresent()) {
-            return CategoryMapper.toDto(categoryRepository.getReferenceById(id));
-        } else {
-            throw new NotFoundException("Не найдена такая категория");
-        }
+        isIdValid(id);
+        return CategoryMapper.toDto(categoryRepository.getReferenceById(id));
     }
 
     @Override
@@ -84,6 +73,18 @@ public class CategoryServiceImpl implements CategoryService {
                 .stream()
                 .map(CategoryMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    private void isNameValid(String name) {
+        if (categoryRepository.findByName(name).isPresent()) {
+            throw new AlreadyExistsException("Category with such name already exists");
+        }
+    }
+
+    private void isIdValid(Long id) {
+        if (categoryRepository.findById(id).isEmpty()) {
+            throw new NotFoundException("Category with such ID is missing");
+        }
     }
 
 }

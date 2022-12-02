@@ -13,8 +13,7 @@ import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.compilation.repository.CompilationRepository;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.exception.AlreadyExistsException;
-import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,12 +39,12 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto addEventToCompilation(Long compilationId, Long eventId) {
         log.info("Request for adding an event to a compilation");
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("No such event"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("No such event"));
         Compilation compilation = retrieveCompilation(compilationId);
         List<Event> events = compilation.getEvents();
         for (Event event1 : events) {
             if (event1.equals(event)) {
-                throw new AlreadyExistsException("This event is already in the compilation");
+                throw new EventAlreadyExistsException("This event is already in the compilation");
             }
         }
         log.info("Validation passed, adding an event...");
@@ -60,7 +59,7 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Request for pinning a compilation");
         Compilation compilation = retrieveCompilation(compilationId);
         if (compilation.getPinned()) {
-            throw new AlreadyExistsException("Compilation is already pinned");
+            throw new CompilationAlreadyExistsException("Compilation is already pinned");
         }
         log.info("Compilation found, pinning...");
         compilation.setPinned(true);
@@ -80,7 +79,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void deleteEventFromCompilation(Long compilationId, Long eventId) {
         log.info("Request for deleting an event from a compilation");
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("No such event"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("No such event"));
         Compilation compilation = retrieveCompilation(compilationId);
         List<Event> events = compilation.getEvents();
         for (Event event1 : events) {
@@ -92,7 +91,7 @@ public class CompilationServiceImpl implements CompilationService {
                 return;
             }
         }
-        throw new NotFoundException("This event is not in the compilation");
+        throw new EventNotFoundException("This event is not in the compilation");
     }
 
     @Transactional
@@ -101,7 +100,7 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Request for unpinning a compilation");
         Compilation compilation = retrieveCompilation(compilationId);
         if (!compilation.getPinned()) {
-            throw new AlreadyExistsException("Compilation is already unpinned");
+            throw new CompilationAlreadyExistsException("Compilation is already unpinned");
         }
         log.info("Compilation found, unpinning...");
         compilation.setPinned(false);

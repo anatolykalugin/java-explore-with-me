@@ -12,7 +12,9 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exception.EventNotFoundException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.UserNotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.dto.RequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
@@ -121,7 +123,7 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("Start date too soon");
         }
         Event event = retrieveEvent(eventDto.getEventId());
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user"));
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("No such user"));
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("The user doesn't have access to this");
         }
@@ -252,31 +254,12 @@ public class EventServiceImpl implements EventService {
     }
 
     private Event retrieveEvent(Long id) {
-        return eventRepository.findById(id).orElseThrow(() -> new NotFoundException("No such event found"));
+        return eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException("No such event found"));
     }
 
     private Event updateAdminProcedure(Event event, EventCreationDto newEvent) {
-        if (newEvent.getAnnotation() != null) {
-            event.setAnnotation(newEvent.getAnnotation());
-        }
-        if (newEvent.getCategory() != null) {
-            event.setCategory(Category.builder().id(newEvent.getCategory()).build());
-        }
-        if (newEvent.getDescription() != null) {
-            event.setDescription(newEvent.getDescription());
-        }
-        if (newEvent.getEventDate() != null) {
-            event.setEventDate(newEvent.getEventDate());
-        }
-        if (newEvent.getPaid() != null) {
-            event.setPaid(newEvent.getPaid());
-        }
-        if (newEvent.getParticipantLimit() != null) {
-            event.setParticipantLimit(newEvent.getParticipantLimit());
-        }
-        if (newEvent.getTitle() != null) {
-            event.setTitle(newEvent.getTitle());
-        }
+        baseUpdateProcedure(event, newEvent.getAnnotation(), newEvent.getCategory(), newEvent.getDescription(),
+                newEvent.getEventDate(), newEvent.getPaid(), newEvent.getParticipantLimit(), newEvent.getTitle());
         if (newEvent.getRequestModeration() != null) {
             event.setModeration(newEvent.getRequestModeration());
         }
@@ -287,34 +270,41 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
+    private void baseUpdateProcedure(Event event, String annotation, Long category, String description,
+                                     LocalDateTime eventDate, Boolean paid, Integer participantLimit,
+                                     String title) {
+        if (annotation != null) {
+            event.setAnnotation(annotation);
+        }
+        if (category != null) {
+            event.setCategory(Category.builder().id(category).build());
+        }
+        if (description != null) {
+            event.setDescription(description);
+        }
+        if (eventDate != null) {
+            event.setEventDate(eventDate);
+        }
+        if (paid != null) {
+            event.setPaid(paid);
+        }
+        if (participantLimit != null) {
+            event.setParticipantLimit(participantLimit);
+        }
+        if (title != null) {
+            event.setTitle(title);
+        }
+    }
+
     private Event updateUserProcedure(Event event, EventUpdateDto newEvent) {
-        if (newEvent.getAnnotation() != null) {
-            event.setAnnotation(newEvent.getAnnotation());
-        }
-        if (newEvent.getCategory() != null) {
-            event.setCategory(Category.builder().id(newEvent.getCategory()).build());
-        }
-        if (newEvent.getDescription() != null) {
-            event.setDescription(newEvent.getDescription());
-        }
-        if (newEvent.getEventDate() != null) {
-            event.setEventDate(newEvent.getEventDate());
-        }
-        if (newEvent.getPaid() != null) {
-            event.setPaid(newEvent.getPaid());
-        }
-        if (newEvent.getParticipantLimit() != null) {
-            event.setParticipantLimit(newEvent.getParticipantLimit());
-        }
-        if (newEvent.getTitle() != null) {
-            event.setTitle(newEvent.getTitle());
-        }
+        baseUpdateProcedure(event, newEvent.getAnnotation(), newEvent.getCategory(), newEvent.getDescription(),
+                newEvent.getEventDate(), newEvent.getPaid(), newEvent.getParticipantLimit(), newEvent.getTitle());
         return event;
     }
 
     private void isUpdateValid(Event event, Long userId, Long requestId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with such ID is absent"));
+                .orElseThrow(() -> new UserNotFoundException("User with such ID is absent"));
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with such ID is absent"));
         if (!request.getEvent().getId().equals(event.getId())) {

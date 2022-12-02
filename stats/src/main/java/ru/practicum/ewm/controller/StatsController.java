@@ -9,6 +9,8 @@ import ru.practicum.ewm.dto.StatsClientDto;
 import ru.practicum.ewm.model.Stats;
 import ru.practicum.ewm.service.StatsService;
 
+import static ru.practicum.ewm.util.Constants.*;
+
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,15 +25,17 @@ public class StatsController {
 
     @PostMapping("/hit")
     public StatsClientDto save(@Valid @RequestBody StatsClientDto statsClientDto) {
+        log.info("Stats controller request: saving stats");
         log.info(" УРИ в контроллере Статов: " + statsClientDto.getUri());
         return statsService.saveStats(statsClientDto);
     }
 
     @GetMapping("/stats")
-    public List<Stats> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+    public List<Stats> get(@RequestParam @DateTimeFormat(pattern = DATETIME_FORMAT) LocalDateTime start,
+                           @RequestParam @DateTimeFormat(pattern = DATETIME_FORMAT) LocalDateTime end,
                            @RequestParam(required = false) List<String> uris,
                            @RequestParam(defaultValue = "false") Boolean unique) {
+        log.info("Stats controller request: getting stats");
         return statsService.getStats(start, end, uris, unique);
     }
 

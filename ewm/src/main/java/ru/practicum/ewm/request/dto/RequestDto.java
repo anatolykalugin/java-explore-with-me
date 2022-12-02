@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 import ru.practicum.ewm.request.model.State;
 
+import static ru.practicum.ewm.util.Constants.*;
+
 import java.time.LocalDateTime;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -19,6 +21,6 @@ public class RequestDto {
     Long event;
     Long requester;
     State status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATETIME_FORMAT)
     LocalDateTime created;
 }

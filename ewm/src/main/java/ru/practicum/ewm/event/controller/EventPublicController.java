@@ -10,6 +10,8 @@ import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.stclient.StClient;
 
+import static ru.practicum.ewm.util.Constants.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -30,9 +32,9 @@ public class EventPublicController {
                                              @RequestParam(name = "categories", required = false)
                                              List<Long> categoriesIds,
                                              @RequestParam(name = "rangeStart", required = false)
-                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededStart,
+                                             @DateTimeFormat(pattern = DATETIME_FORMAT) LocalDateTime neededStart,
                                              @RequestParam(name = "rangeEnd", required = false)
-                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime neededEnd,
+                                             @DateTimeFormat(pattern = DATETIME_FORMAT) LocalDateTime neededEnd,
                                              @RequestParam(name = "paid", required = false) Boolean paid,
                                              @RequestParam(name = "onlyAvailable", defaultValue = "false")
                                              Boolean available,
@@ -41,7 +43,7 @@ public class EventPublicController {
                                              Integer index,
                                              @Positive @RequestParam(defaultValue = "10") Integer size,
                                              HttpServletRequest httpServletRequest) {
-        log.info(" УРИ в запросе: " + httpServletRequest.getRequestURI());
+        log.info("Event public controller request: getting public events");
         stClient.saveStats(httpServletRequest);
         return eventService.getPublicEvents(text, categoriesIds, neededStart, neededEnd, paid,
                 available, sort, index, size);
@@ -50,7 +52,7 @@ public class EventPublicController {
     @GetMapping("/{id}")
     public EventDto getFullPublicEvent(@PathVariable(name = "id") Long eventId,
                                        HttpServletRequest httpServletRequest) {
-        log.info(" УРИ в запросе: " + httpServletRequest.getRequestURI());
+        log.info("Event public controller request: getting event's full info by id");
         stClient.saveStats(httpServletRequest);
         return eventService.getFullPublicEvent(eventId);
     }

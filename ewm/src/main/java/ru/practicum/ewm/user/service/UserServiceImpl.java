@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exception.AlreadyExistsException;
-import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.UserNotFoundException;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.dto.UserMapper;
 import ru.practicum.ewm.user.model.User;
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         log.info("Запрос на удаление юзера");
         userRepository.delete(userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с ID " + id + " не найден.")));
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + id + " не найден.")));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(Long id) {
         log.info("Поиск юзера по айди");
         return UserMapper.toDto(userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с ID " + id + " не найден.")));
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + id + " не найден.")));
     }
 
 }

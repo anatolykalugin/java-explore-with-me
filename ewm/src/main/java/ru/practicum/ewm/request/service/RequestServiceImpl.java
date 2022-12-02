@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exception.EventNotFoundException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.UserNotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.dto.RequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
@@ -33,8 +35,10 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestDto createRequest(Long userId, Long eventId) {
         log.info("Request for creation of a request");
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user found"));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("No such event found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No such user found"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("No such event found"));
         Request request = Request.builder()
                 .author(user)
                 .event(event)
@@ -56,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestDto cancelRequest(Long userId, Long requestId) {
         log.info("Request for cancellation of a request");
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user found"));
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("No such user found"));
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("No such request found"));
         request.setState(State.CANCELED);
@@ -67,7 +71,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<RequestDto> getUsersRequests(Long userId) {
         log.info("Request for getting all of the user's requests");
-        User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("No such user found"));
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No such user found"));
         return requestRepository.getAllByAuthor(author).stream()
                 .map(RequestMapper::toDto)
                 .collect(Collectors.toList());
