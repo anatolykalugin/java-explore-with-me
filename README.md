@@ -1,7 +1,5 @@
 # ExploreWithMe
 
-[PR Link for review](https://github.com/anatolykalugin/java-explore-with-me/pull/2)
-
 ### Technologies used:
 * Spring Boot
 * REST API

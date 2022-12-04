@@ -340,12 +340,16 @@ public class EventServiceImpl implements EventService {
     public CommentDto postComment(CommentDto commentDto, Long eventId, Long authorId) {
         log.info("Request for posting a comment");
         Event event = retrieveEvent(eventId);
-        User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new UserNotFoundException("No user with such ID"));
-        log.info("Validation passed: posting...");
-        Comment comment = CommentMapper.toClass(commentDto, event, author);
-        comment.setPublished(LocalDateTime.now());
-        return CommentMapper.toDto(commentRepository.save(comment));
+        if (event.getState().equals(State.PUBLISHED)) {
+            User author = userRepository.findById(authorId)
+                    .orElseThrow(() -> new UserNotFoundException("No user with such ID"));
+            log.info("Validation passed: posting...");
+            Comment comment = CommentMapper.toClass(commentDto, event, author);
+            comment.setPublished(LocalDateTime.now());
+            return CommentMapper.toDto(commentRepository.save(comment));
+        } else {
+            throw new ValidationException("The event must be published to have comments");
+        }
     }
 
     @Transactional
@@ -353,7 +357,7 @@ public class EventServiceImpl implements EventService {
     public CommentDto editComment(CommentDto commentDto, Long authorId, Long commentId) {
         log.info("Request for editing a comment");
         Comment comment = retrieveComment(commentId);
-        commentAuthorValidation(commentDto, authorId);
+        commentAuthorValidation(comment, authorId);
         if (!comment.getText().equals(commentDto.getText())) {
             log.info("Validation passed: editing...");
             comment.setText(commentDto.getText());
@@ -377,8 +381,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteCommentByAuthor(Long commentId, Long authorId) {
         log.info("Request for deleting a comment");
-        CommentDto commentDto = getCommentById(commentId);
-        commentAuthorValidation(commentDto, authorId);
+        Comment comment = retrieveComment(commentId);
+        commentAuthorValidation(comment, authorId);
         log.info("Validation passed: deleting...");
         commentRepository.deleteById(commentId);
     }
@@ -398,8 +402,8 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    private void commentAuthorValidation(CommentDto commentDto, Long authorId) {
-        if (!commentDto.getAuthor().equals(authorId)) {
+    private void commentAuthorValidation(Comment comment, Long authorId) {
+        if (!comment.getAuthor().getId().equals(authorId)) {
             throw new ValidationException("The user is not authorized to edit/delete this comment");
         }
     }

@@ -83,7 +83,7 @@ public class EventPrivateController {
         return eventService.postComment(commentDto, eventId, userId);
     }
 
-    @PatchMapping("/comments/{comId}")
+    @PutMapping("/comments/{comId}")
     public CommentDto editComment(@Valid @RequestBody CommentDto commentDto,
                                   @PathVariable Long userId, @PathVariable(name = "comId") Long commentId) {
         log.info("Event private controller request: editing a comment");
