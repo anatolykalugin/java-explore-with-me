@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.event.comment.dto.CommentCutDto;
 import ru.practicum.ewm.event.model.State;
 
 import static ru.practicum.ewm.util.Constants.*;
@@ -11,6 +12,7 @@ import static ru.practicum.ewm.util.Constants.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -43,6 +45,7 @@ public class EventDto {
     Integer participantLimit;
     Integer views;
     Integer confirmedRequests;
+    List<CommentCutDto> commentsList;
 
     @Getter
     @Setter

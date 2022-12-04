@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.event.comment.dto.CommentCutDto;
 import ru.practicum.ewm.event.comment.dto.CommentDto;
 import ru.practicum.ewm.event.comment.dto.CommentMapper;
 import ru.practicum.ewm.event.comment.model.Comment;
@@ -105,7 +106,12 @@ public class EventServiceImpl implements EventService {
         retrieveEvent(eventId);
         log.info("Validation passed, getting...");
         Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED);
-        return EventMapper.toDto(event);
+        EventDto eventDto = EventMapper.toDto(event);
+        List<CommentCutDto> commentsList = getEventComments(eventId, 0, 10).stream()
+                .map(CommentMapper::toCutDto)
+                .collect(Collectors.toList());
+        eventDto.setCommentsList(commentsList);
+        return eventDto;
     }
 
     @Override
@@ -402,8 +408,5 @@ public class EventServiceImpl implements EventService {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment with such ID not found"));
     }
-
-    /*TODO: вывод комментариев с ником автора (встроенный конструктор юзера в комментариях_дто?), вывод события со
-       списком комментарием (встроенный конструктор комментария в событиях_дто)*/
 
 }

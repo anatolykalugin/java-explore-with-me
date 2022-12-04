@@ -28,4 +28,12 @@ public class CommentMapper {
                 .build();
     }
 
+    public static CommentCutDto toCutDto(CommentDto commentDto) {
+        return CommentCutDto.builder()
+                .author(commentDto.getAuthor())
+                .text(commentDto.getText())
+                .published(commentDto.getPublished())
+                .build();
+    }
+
 }
