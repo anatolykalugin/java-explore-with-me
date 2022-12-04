@@ -56,4 +56,10 @@ public class EventAdminController {
         return eventService.rejectEvent(eventId);
     }
 
+    @DeleteMapping("/comments/{comId}")
+    public void deleteCommentByAdmin(@PathVariable(name = "comId") Long commentId) {
+        log.info("Event admin controller request: deleting a comment by an admin");
+        eventService.deleteCommentByAdmin(commentId);
+    }
+
 }

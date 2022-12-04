@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.event.comment.dto.CommentDto;
 import ru.practicum.ewm.event.dto.EventCutDto;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.model.Sort;
@@ -55,6 +56,21 @@ public class EventPublicController {
         log.info("Event public controller request: getting event's full info by id");
         stClient.saveStats(httpServletRequest);
         return eventService.getFullPublicEvent(eventId);
+    }
+
+    @GetMapping("/{id}/comments")
+    public List<CommentDto> getEventComments(@PathVariable(name = "id") Long eventId,
+                                             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                             Integer index,
+                                             @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Event public controller request: getting event's comments");
+        return eventService.getEventComments(eventId, index, size);
+    }
+
+    @GetMapping("/comments/{comId}")
+    public CommentDto getCommentById(@PathVariable(name = "comId") Long commentId) {
+        log.info("Event public controller request: getting a comment by ID");
+        return eventService.getCommentById(commentId);
     }
 
 }

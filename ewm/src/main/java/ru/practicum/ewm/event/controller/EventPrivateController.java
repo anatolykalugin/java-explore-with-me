@@ -3,6 +3,7 @@ package ru.practicum.ewm.event.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.event.comment.dto.CommentDto;
 import ru.practicum.ewm.event.dto.EventCreationDto;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventUpdateDto;
@@ -73,6 +74,26 @@ public class EventPrivateController {
                                          @PathVariable(name = "reqId") Long requestId) {
         log.info("Event private controller request: rejecting a participation request");
         return eventService.rejectUsersRequest(userId, eventId, requestId);
+    }
+
+    @PostMapping("/{eventId}/comments")
+    public CommentDto postComment(@Valid @RequestBody CommentDto commentDto,
+                                  @PathVariable Long userId, @PathVariable Long eventId) {
+        log.info("Event private controller request: posting a comment");
+        return eventService.postComment(commentDto, eventId, userId);
+    }
+
+    @PatchMapping("/comments/{comId}")
+    public CommentDto editComment(@Valid @RequestBody CommentDto commentDto,
+                                  @PathVariable Long userId, @PathVariable(name = "comId") Long commentId) {
+        log.info("Event private controller request: editing a comment");
+        return eventService.editComment(commentDto, userId, commentId);
+    }
+
+    @DeleteMapping("/comments/{comId}")
+    public void deleteCommentByAuthor(@PathVariable Long userId, @PathVariable(name = "comId") Long commentId) {
+        log.info("Event private controller request: deleting a comment by an author");
+        eventService.deleteCommentByAuthor(commentId, userId);
     }
 
 }

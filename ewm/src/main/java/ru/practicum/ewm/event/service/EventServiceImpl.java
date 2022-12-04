@@ -7,15 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.event.comment.dto.CommentDto;
+import ru.practicum.ewm.event.comment.dto.CommentMapper;
+import ru.practicum.ewm.event.comment.model.Comment;
+import ru.practicum.ewm.event.comment.repository.CommentRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.Sort;
 import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.exception.EventNotFoundException;
-import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.exception.UserNotFoundException;
-import ru.practicum.ewm.exception.ValidationException;
+import ru.practicum.ewm.exception.*;
 import ru.practicum.ewm.request.dto.RequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.model.Request;
@@ -37,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     @Override
@@ -326,5 +328,82 @@ public class EventServiceImpl implements EventService {
                 .filter(event2 -> event2.getState().equals(ru.practicum.ewm.request.model.State.CONFIRMED)).count();
         return confirmedParticipants >= event.getParticipantLimit();
     }
+
+    @Transactional
+    @Override
+    public CommentDto postComment(CommentDto commentDto, Long eventId, Long authorId) {
+        log.info("Request for posting a comment");
+        Event event = retrieveEvent(eventId);
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new UserNotFoundException("No user with such ID"));
+        log.info("Validation passed: posting...");
+        Comment comment = CommentMapper.toClass(commentDto, event, author);
+        comment.setPublished(LocalDateTime.now());
+        return CommentMapper.toDto(commentRepository.save(comment));
+    }
+
+    @Transactional
+    @Override
+    public CommentDto editComment(CommentDto commentDto, Long authorId, Long commentId) {
+        log.info("Request for editing a comment");
+        Comment comment = retrieveComment(commentId);
+        commentAuthorValidation(commentDto, authorId);
+        if (!comment.getText().equals(commentDto.getText())) {
+            log.info("Validation passed: editing...");
+            comment.setText(commentDto.getText());
+            comment.setPublished(LocalDateTime.now());
+            return CommentMapper.toDto(commentRepository.save(comment));
+        } else {
+            throw new AlreadyExistsException("The comment hasn't been changed");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteCommentByAdmin(Long commentId) {
+        log.info("Request for deleting a comment");
+        getCommentById(commentId);
+        log.info("Validation passed: deleting...");
+        commentRepository.deleteById(commentId);
+    }
+
+    @Transactional
+    @Override
+    public void deleteCommentByAuthor(Long commentId, Long authorId) {
+        log.info("Request for deleting a comment");
+        CommentDto commentDto = getCommentById(commentId);
+        commentAuthorValidation(commentDto, authorId);
+        log.info("Validation passed: deleting...");
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    public CommentDto getCommentById(Long commentId) {
+        log.info("Request for getting a comment by ID");
+        return CommentMapper.toDto(retrieveComment(commentId));
+    }
+
+    @Override
+    public List<CommentDto> getEventComments(Long eventId, Integer index, Integer size) {
+        log.info("Request for getting event's comments");
+        Pageable pageable = PageRequest.of(index / size, size);
+        return commentRepository.getCommentsByEvent_IdOrderByPublishedDesc(eventId, pageable).stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private void commentAuthorValidation(CommentDto commentDto, Long authorId) {
+        if (!commentDto.getAuthor().equals(authorId)) {
+            throw new ValidationException("The user is not authorized to edit/delete this comment");
+        }
+    }
+
+    private Comment retrieveComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("Comment with such ID not found"));
+    }
+
+    /*TODO: вывод комментариев с ником автора (встроенный конструктор юзера в комментариях_дто?), вывод события со
+       списком комментарием (встроенный конструктор комментария в событиях_дто)*/
 
 }

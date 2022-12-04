@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event.service;
 
+import ru.practicum.ewm.event.comment.dto.CommentDto;
 import ru.practicum.ewm.event.dto.EventCreationDto;
 import ru.practicum.ewm.event.dto.EventCutDto;
 import ru.practicum.ewm.event.dto.EventDto;
@@ -43,5 +44,17 @@ public interface EventService {
     RequestDto confirmUsersRequest(Long userId, Long eventId, Long requestId);
 
     RequestDto rejectUsersRequest(Long userId, Long eventId, Long requestId);
+
+    CommentDto postComment(CommentDto commentDto, Long eventId, Long authorId);
+
+    CommentDto editComment(CommentDto commentDto, Long authorId, Long commentId);
+
+    void deleteCommentByAdmin(Long commentId);
+
+    void deleteCommentByAuthor(Long commentId, Long authorId);
+
+    CommentDto getCommentById(Long commentId);
+
+    List<CommentDto> getEventComments(Long eventId, Integer index, Integer size);
 
 }
