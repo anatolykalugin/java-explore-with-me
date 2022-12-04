@@ -361,11 +361,11 @@ public class EventServiceImpl implements EventService {
         if (!comment.getText().equals(commentDto.getText())) {
             log.info("Validation passed: editing...");
             comment.setText(commentDto.getText());
-            comment.setPublished(LocalDateTime.now());
-            return CommentMapper.toDto(commentRepository.save(comment));
         } else {
-            throw new AlreadyExistsException("The comment hasn't been changed");
+            log.info("Validation passed: same text, only editing timestamp...");
         }
+        comment.setPublished(LocalDateTime.now());
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
 
     @Transactional
